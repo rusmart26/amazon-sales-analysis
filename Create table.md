@@ -1,0 +1,45 @@
+**Create table**
+
+	CREATE TABLE raw_amazon_sales (
+   		order_id            VARCHAR(50),
+    		order_date          VARCHAR(20),          
+    		product_id          VARCHAR(50),
+    		product_category    VARCHAR(150),
+    		price               DECIMAL(10,2),
+    		discount_percent    DECIMAL(5,2),
+    		discounted_price    DECIMAL(10,2),
+    		quantity_sold       INT,
+    		total_revenue       DECIMAL(12,2),
+   		customer_region     VARCHAR(100),
+   		payment_method      VARCHAR(50),
+    		rating              DECIMAL(3,1),
+    		review_count        INT
+	);
+
+**Create a reservation table to make changes**
+
+	CREATE TABLE amazon_sales_clean AS
+	SELECT * FROM raw_amazon_sales;
+
+**Data cleansing**
+
+--Change date format
+	UPDATE `amazon_sales_clean`
+	SET `order_date` = STR_TO_DATE(`order_date`, '%d/%m/%Y')
+	WHERE `order_date` IS NOT NULL;
+
+--Null by column.
+   SELECT 
+    	 SUM(CASE WHEN order_id IS NULL THEN 1 ELSE 0 END) AS null_order_id,
+    	 ... (todas las columnas)
+   FROM amazon_sales_clean;   FROM amazon_sales_clean;
+
+--Result: 0 nulls in all columns
+
+--Finding duplicates.
+   SELECT order_id, product_id, COUNT(*) AS dup_count
+   FROM amazon_sales_clean
+   GROUP BY order_id, product_id
+   HAVING dup_count > 1;
+
+--Result: 0  duplicates.
